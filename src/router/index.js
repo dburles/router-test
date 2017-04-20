@@ -1,25 +1,24 @@
 import React, { Component } from 'react';
 
-let routes = [];
-let setState;
+const subscriptions = [];
 
-function getComponent() {
-  const { component } = routes.find(
-    ({ path, component }) => path === document.location.pathname,
-  );
-  return component;
+function subscribe(fn) {
+  subscriptions.push(fn);
+  return function() {
+    subscriptions.splice(subscriptions.indexOf(fn), 1);
+  };
 }
 
-function onStateChange(cb) {
-  setState = cb;
+function notify() {
+  subscriptions.forEach(fn => fn());
 }
 
-window.onpopstate = event => setState();
+window.onpopstate = event => notify();
 
 const handleLink = href => event => {
   event.preventDefault();
   history.pushState({}, null, href);
-  setState();
+  notify();
 };
 
 function Link({ href, children }) {
@@ -30,21 +29,43 @@ function Link({ href, children }) {
   );
 }
 
-const router = { Link };
+function withState(WrappedComponent) {
+  return class extends Component {
+    subscription = subscribe(() => this.setState({}));
+
+    componentWillUnmount() {
+      this.subscription();
+    }
+
+    render() {
+      return <WrappedComponent {...this.props} />;
+    }
+  };
+}
+
+const router = { Link: withState(Link) };
 
 export const withRouter = WrappedComponent => props => (
   <WrappedComponent {...props} router={router} />
 );
 
-export default class Router extends Component {
+class Router extends Component {
   constructor(props) {
     super(props);
-    routes = props.routes;
-    onStateChange(() => this.setState({}));
+    this.props = props;
+  }
+
+  getComponent() {
+    const { component } = this.props.routes.find(
+      ({ path, component }) => path === document.location.pathname,
+    );
+    return component;
   }
 
   render() {
-    const RoutedComponent = getComponent();
+    const RoutedComponent = this.getComponent();
     return <RoutedComponent />;
   }
 }
+
+export default withState(Router);
