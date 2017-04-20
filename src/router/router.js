@@ -71,8 +71,8 @@ function getRouteParams() {
 
 const withRouter = WrappedComponent => props =>
   React.createElement(withState(WrappedComponent), {
-    ...props,
     router: { Link, params: getRouteParams() },
+    ...props,
   });
 
 export default withState(Router);
