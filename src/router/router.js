@@ -8,7 +8,7 @@ let notFoundComponent = NotFound;
 
 const subscriptions = [];
 
-export function subscribe(fn) {
+function subscribe(fn) {
   subscriptions.push(fn);
   return function() {
     subscriptions.splice(subscriptions.indexOf(fn), 1);
