@@ -36,32 +36,27 @@ const handleLink = href => event => {
   notify();
 };
 
-function Router() {
-  return React.createElement(getComponent());
+class Renderer extends Component {
+  subscription = subscribe(() => this.setState({}));
+
+  componentWillUnmount() {
+    this.subscription();
+  }
+
+  render() {
+    return React.createElement(getComponent(), this.props);
+  }
 }
 
-function route(routeMap, component) {
-  if (typeof component === 'function') {
-    notFoundComponent = component;
-  }
-  routes = routeMap.map(({ path, component }) => ({
+function Router(props) {
+  routes = props.routes.map(({ path, component }) => ({
     path: new parser(path),
     component,
   }));
-}
-
-function withState(WrappedComponent) {
-  return class extends Component {
-    subscription = subscribe(() => this.setState({}));
-
-    componentWillUnmount() {
-      this.subscription();
-    }
-
-    render() {
-      return <WrappedComponent {...this.props} />;
-    }
-  };
+  if (props.notFoundComponent) {
+    notFoundComponent = props.notFoundComponent;
+  }
+  return React.createElement(Renderer);
 }
 
 function getRouteParams() {
@@ -87,5 +82,5 @@ function withRouter(WrappedComponent) {
   };
 }
 
-export default withState(Router);
-export { route, withRouter, handleLink };
+export default Router;
+export { withRouter, handleLink };
