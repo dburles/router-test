@@ -78,7 +78,7 @@ function withRouter(WrappedComponent) {
     }
 
     router() {
-      return { Link: withState(Link), params: getRouteParams() };
+      return { Link, params: getRouteParams() };
     }
 
     render() {
