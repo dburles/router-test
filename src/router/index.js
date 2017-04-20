@@ -29,6 +29,13 @@ function Link({ href, children }) {
   );
 }
 
+function Router({ routes }) {
+  const { component } = routes.find(
+    ({ path, component }) => path === document.location.pathname,
+  );
+  return React.createElement(component);
+}
+
 function withState(WrappedComponent) {
   return class extends Component {
     subscription = subscribe(() => this.setState({}));
@@ -48,24 +55,5 @@ const router = { Link: withState(Link) };
 export const withRouter = WrappedComponent => props => (
   <WrappedComponent {...props} router={router} />
 );
-
-class Router extends Component {
-  constructor(props) {
-    super(props);
-    this.props = props;
-  }
-
-  getComponent() {
-    const { component } = this.props.routes.find(
-      ({ path, component }) => path === document.location.pathname,
-    );
-    return component;
-  }
-
-  render() {
-    const RoutedComponent = this.getComponent();
-    return <RoutedComponent />;
-  }
-}
 
 export default withState(Router);
