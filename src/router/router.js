@@ -69,23 +69,11 @@ function getRouteParams() {
   return route ? route.path.match(document.location.pathname) : {};
 }
 
-function withRouter(WrappedComponent) {
-  return class extends Component {
-    subscription = subscribe(() => this.setState({}));
-
-    componentWillUnmount() {
-      this.subscription();
-    }
-
-    router() {
-      return { Link, params: getRouteParams() };
-    }
-
-    render() {
-      return <WrappedComponent {...this.props} router={this.router()} />;
-    }
-  };
-}
+const withRouter = WrappedComponent => props =>
+  React.createElement(withState(WrappedComponent), {
+    ...props,
+    router: { Link, params: getRouteParams() },
+  });
 
 export default withState(Router);
 export { route, withRouter, handleLink };
