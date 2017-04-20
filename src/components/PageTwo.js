@@ -1,11 +1,10 @@
 import React from 'react';
-import Layout from './Layout';
 
 function PageTwo() {
   return (
-    <Layout>
+    <div>
       <h1>Page Two</h1>
-    </Layout>
+    </div>
   );
 }
 

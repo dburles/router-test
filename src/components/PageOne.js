@@ -1,14 +1,12 @@
 import React from 'react';
-import Layout from './Layout';
-import { withRouter } from './router';
 
 function PageOne({ router: { Link } }) {
   return (
-    <Layout>
+    <div>
       <h1>Page One</h1>
       <Link href="/page-two">Another link to page two!</Link>
-    </Layout>
+    </div>
   );
 }
 
-export default withRouter(PageOne);
+export default PageOne;
