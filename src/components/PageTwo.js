@@ -1,11 +1,7 @@
 import React from 'react';
 
 function PageTwo() {
-  return (
-    <div>
-      <h1>Page Two</h1>
-    </div>
-  );
+  return <h1>Page Two</h1>;
 }
 
 export default PageTwo;

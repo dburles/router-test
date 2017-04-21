@@ -1,4 +1,4 @@
-import Router, { route, withRouter } from './router';
+import Router, { route, withRouter, browserHistory } from './router';
 
 export default Router;
-export { route, withRouter };
+export { route, withRouter, browserHistory };

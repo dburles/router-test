@@ -110,7 +110,11 @@ function withRouter(WrappedComponent) {
     render() {
       return React.createElement(WrappedComponent, {
         ...this.props,
-        ...mapRouterProps({ Link, params: getRouteParams() }),
+        ...mapRouterProps({
+          Link,
+          params: getRouteParams(),
+          location: window.location,
+        }),
       });
     }
   };
