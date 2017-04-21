@@ -10,27 +10,21 @@ let mapRouterProps = router => ({ router });
 
 const subscriptions = [];
 
-function subscribe(fn) {
+const subscribe = fn => {
   subscriptions.push(fn);
-  return function() {
-    subscriptions.splice(subscriptions.indexOf(fn), 1);
-  };
-}
+  return () => subscriptions.splice(subscriptions.indexOf(fn), 1);
+};
 
-function notify() {
-  subscriptions.forEach(fn => fn());
-}
+const notify = () => subscriptions.forEach(fn => fn());
 
 window.onpopstate = () => notify();
 
-function getRoute() {
-  return routes.find(({ path }) => path.match(location.pathname));
-}
+const getRoute = () => routes.find(({ path }) => path.match(location.pathname));
 
-function getComponent() {
+const getComponent = () => {
   const route = getRoute();
   return route ? route.component : notFoundComponent;
-}
+};
 
 const browserHistory = {
   pushState(...args) {
@@ -44,10 +38,10 @@ const handleLink = href => event => {
   browserHistory.pushState({}, null, href);
 };
 
-function getRouteParams() {
+const getRouteParams = () => {
   const route = getRoute();
   return route ? route.path.match(location.pathname) : {};
-}
+};
 
 class Renderer extends Component {
   subscription = subscribe(() => this.setState({}));
@@ -72,20 +66,23 @@ class Renderer extends Component {
   }
 }
 
-function Router(props) {
+const Router = props => {
   routes = props.routes.map(({ path, component, redirect }) => ({
     path: new Parser(path),
     component,
     redirect,
   }));
+
   if (props.notFoundComponent) {
     notFoundComponent = props.notFoundComponent;
   }
+
   if (props.mapRouterProps) {
     mapRouterProps = props.mapRouterProps;
   }
+
   return React.createElement(Renderer);
-}
+};
 
 Router.propTypes = {
   routes: PropTypes.arrayOf(
@@ -99,26 +96,24 @@ Router.propTypes = {
   mapRouterProps: PropTypes.func,
 };
 
-function withRouter(WrappedComponent) {
-  return class extends Component {
-    subscription = subscribe(() => this.setState({}));
+const withRouter = WrappedComponent => class extends Component {
+  subscription = subscribe(() => this.setState({}));
 
-    componentWillUnmount() {
-      this.subscription();
-    }
+  componentWillUnmount() {
+    this.subscription();
+  }
 
-    render() {
-      return React.createElement(WrappedComponent, {
-        ...this.props,
-        ...mapRouterProps({
-          Link,
-          params: getRouteParams(),
-          location: window.location,
-        }),
-      });
-    }
-  };
-}
+  render() {
+    return React.createElement(WrappedComponent, {
+      ...this.props,
+      ...mapRouterProps({
+        Link,
+        params: getRouteParams(),
+        location: window.location,
+      }),
+    });
+  }
+};
 
 export default Router;
 export { withRouter, handleLink, browserHistory };
