@@ -10,21 +10,27 @@ let mapRouterProps = router => ({ router });
 
 const subscriptions = [];
 
-const subscribe = fn => {
+function subscribe(fn) {
   subscriptions.push(fn);
-  return () => subscriptions.splice(subscriptions.indexOf(fn), 1);
-};
+  return function() {
+    subscriptions.splice(subscriptions.indexOf(fn), 1);
+  };
+}
 
-const notify = () => subscriptions.forEach(fn => fn());
+function notify() {
+  subscriptions.forEach(fn => fn());
+}
 
 window.onpopstate = () => notify();
 
-const getRoute = () => routes.find(({ path }) => path.match(location.pathname));
+function getRoute() {
+  return routes.find(({ path }) => path.match(location.pathname));
+}
 
-const getComponent = () => {
+function getComponent() {
   const route = getRoute();
   return route ? route.component : notFoundComponent;
-};
+}
 
 const browserHistory = {
   pushState(...args) {
@@ -33,15 +39,17 @@ const browserHistory = {
   },
 };
 
-const handleLink = href => event => {
-  event.preventDefault();
-  browserHistory.pushState({}, null, href);
-};
+function handleLink(href) {
+  return function(event) {
+    event.preventDefault();
+    browserHistory.pushState({}, null, href);
+  };
+}
 
-const getRouteParams = () => {
+function getRouteParams() {
   const route = getRoute();
   return route ? route.path.match(location.pathname) : {};
-};
+}
 
 class Renderer extends Component {
   subscription = subscribe(() => this.setState({}));
@@ -96,24 +104,26 @@ Router.propTypes = {
   mapRouterProps: PropTypes.func,
 };
 
-const withRouter = WrappedComponent => class extends Component {
-  subscription = subscribe(() => this.setState({}));
+function withRouter(WrappedComponent) {
+  return class extends Component {
+    subscription = subscribe(() => this.setState({}));
 
-  componentWillUnmount() {
-    this.subscription();
-  }
+    componentWillUnmount() {
+      this.subscription();
+    }
 
-  render() {
-    return React.createElement(WrappedComponent, {
-      ...this.props,
-      ...mapRouterProps({
-        Link,
-        params: getRouteParams(),
-        location: window.location,
-      }),
-    });
-  }
-};
+    render() {
+      return React.createElement(WrappedComponent, {
+        ...this.props,
+        ...mapRouterProps({
+          Link,
+          params: getRouteParams(),
+          location: window.location,
+        }),
+      });
+    }
+  };
+}
 
 export default Router;
 export { withRouter, handleLink, browserHistory };
